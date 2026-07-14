@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore simplified personal financial planning scenarios in a private, browser-based educational tool.">
+  <title>Personal Financial Planning Scenario Planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="calculations.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#planner">Skip to planner</a>
+
+  <header class="hero">
+    <div class="page-shell hero__content">
+      <p class="eyebrow">Workshop learning tool</p>
+      <h1>Personal Financial Planning<br><span>Scenario Planner</span></h1>
+      <p class="hero__intro">See how today’s choices and a few simple assumptions could shape your financial future. Change any number and the results update instantly.</p>
+      <div class="privacy-note" aria-label="Privacy note">
+        <span aria-hidden="true">✓</span>
+        <p><strong>Private by design.</strong> Your entries stay in this browser tab. Nothing is saved or sent anywhere.</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="planner" class="page-shell">
+    <section class="scenario-panel" aria-labelledby="scenario-heading">
+      <div class="section-heading">
+        <div>
+          <p class="step-label">Step 1</p>
+          <h2 id="scenario-heading">Choose a scenario</h2>
+          <p>Start with a preset, then fine-tune its assumptions. Changes apply only to the selected scenario.</p>
+        </div>
+        <span id="custom-badge" class="badge" hidden>Customized</span>
+      </div>
+
+      <div class="scenario-tabs" role="radiogroup" aria-label="Financial scenario">
+        <button class="scenario-card" type="button" role="radio" aria-checked="false" data-scenario="conservative">
+          <span class="scenario-card__icon" aria-hidden="true">◒</span>
+          <strong>Conservative</strong>
+          <span>Lower growth, higher inflation</span>
+        </button>
+        <button class="scenario-card is-selected" type="button" role="radio" aria-checked="true" data-scenario="moderate">
+          <span class="scenario-card__icon" aria-hidden="true">◉</span>
+          <strong>Moderate</strong>
+          <span>Balanced assumptions</span>
+        </button>
+        <button class="scenario-card" type="button" role="radio" aria-checked="false" data-scenario="optimistic">
+          <span class="scenario-card__icon" aria-hidden="true">◕</span>
+          <strong>Optimistic</strong>
+          <span>Higher growth, lower inflation</span>
+        </button>
+      </div>
+
+      <div class="assumptions" aria-labelledby="assumptions-heading">
+        <div class="assumptions__heading">
+          <div>
+            <h3 id="assumptions-heading">Assumptions in use</h3>
+            <p>Percentages are annual estimates, not guarantees.</p>
+          </div>
+          <button id="restore-preset" class="text-button" type="button">Restore preset</button>
+        </div>
+        <div class="assumption-grid">
+          <div class="field compact-field">
+            <label for="investmentReturn">Investment return</label>
+            <div class="input-suffix"><input id="investmentReturn" name="investmentReturn" type="number" min="-20" max="20" step="0.1" inputmode="decimal"><span>%</span></div>
+            <p class="field-help">Average yearly portfolio growth.</p>
+            <p class="field-error" id="investmentReturn-error"></p>
+          </div>
+          <div class="field compact-field">
+            <label for="incomeGrowth">Income growth</label>
+            <div class="input-suffix"><input id="incomeGrowth" name="incomeGrowth" type="number" min="-10" max="15" step="0.1" inputmode="decimal"><span>%</span></div>
+            <p class="field-help">Used to increase savings contributions.</p>
+            <p class="field-error" id="incomeGrowth-error"></p>
+          </div>
+          <div class="field compact-field">
+            <label for="inflationRate">Inflation</label>
+            <div class="input-suffix"><input id="inflationRate" name="inflationRate" type="number" min="-5" max="15" step="0.1" inputmode="decimal"><span>%</span></div>
+            <p class="field-help">Used to estimate future spending costs.</p>
+            <p class="field-error" id="inflationRate-error"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <form id="planner-form" novalidate>
+      <section class="input-section" aria-labelledby="details-heading">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">Step 2</p>
+            <h2 id="details-heading">Tell us about your plan</h2>
+            <p>Use rough estimates if you are unsure. This is for learning, not precision forecasting.</p>
+          </div>
+        </div>
+
+        <div id="form-summary" class="error-summary" role="alert" tabindex="-1" hidden></div>
+
+        <fieldset>
+          <legend>Your timeline</legend>
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="currentAge">Current age</label>
+              <input id="currentAge" name="currentAge" type="number" min="18" max="90" step="1" inputmode="numeric" value="35" aria-describedby="currentAge-help currentAge-error">
+              <p class="field-help" id="currentAge-help">Age today, from 18 to 90.</p>
+              <p class="field-error" id="currentAge-error"></p>
+            </div>
+            <div class="field">
+              <label for="retirementAge">Planned retirement age</label>
+              <input id="retirementAge" name="retirementAge" type="number" min="19" max="100" step="1" inputmode="numeric" value="67" aria-describedby="retirementAge-help retirementAge-error">
+              <p class="field-help" id="retirementAge-help">Must be later than your current age.</p>
+              <p class="field-error" id="retirementAge-error"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Income and savings</legend>
+          <div class="form-grid three-columns">
+            <div class="field">
+              <label for="annualIncome">Current annual income</label>
+              <div class="input-prefix"><span>$</span><input id="annualIncome" name="annualIncome" type="number" min="0" max="10000000" step="1000" inputmode="decimal" value="75000"></div>
+              <p class="field-help">Before-tax income; shown for context.</p><p class="field-error" id="annualIncome-error"></p>
+            </div>
+            <div class="field">
+              <label for="currentSavings">Current savings</label>
+              <div class="input-prefix"><span>$</span><input id="currentSavings" name="currentSavings" type="number" min="0" max="100000000" step="1000" inputmode="decimal" value="60000"></div>
+              <p class="field-help">Savings invested toward this plan.</p><p class="field-error" id="currentSavings-error"></p>
+            </div>
+            <div class="field">
+              <label for="monthlyContribution">Monthly savings contribution</label>
+              <div class="input-prefix"><span>$</span><input id="monthlyContribution" name="monthlyContribution" type="number" min="0" max="1000000" step="50" inputmode="decimal" value="850"></div>
+              <p class="field-help">Assumed to rise with income growth.</p><p class="field-error" id="monthlyContribution-error"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Spending</legend>
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="annualExpenses">Current annual expenses</label>
+              <div class="input-prefix"><span>$</span><input id="annualExpenses" name="annualExpenses" type="number" min="0" max="10000000" step="1000" inputmode="decimal" value="48000"></div>
+              <p class="field-help">Included to help compare your plan with today.</p><p class="field-error" id="annualExpenses-error"></p>
+            </div>
+            <div class="field">
+              <label for="retirementSpending">Expected retirement spending</label>
+              <div class="input-prefix"><span>$</span><input id="retirementSpending" name="retirementSpending" type="number" min="0" max="10000000" step="1000" inputmode="decimal" value="42000"></div>
+              <p class="field-help">Annual amount in today’s dollars.</p><p class="field-error" id="retirementSpending-error"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Optional major future expense</legend>
+          <p class="fieldset-help">Leave the amount at $0 to exclude a major expense.</p>
+          <div class="form-grid two-columns">
+            <div class="field">
+              <label for="majorExpense">Expense amount</label>
+              <div class="input-prefix"><span>$</span><input id="majorExpense" name="majorExpense" type="number" min="0" max="100000000" step="1000" inputmode="decimal" value="30000"></div>
+              <p class="field-help">Enter the cost in today’s dollars.</p><p class="field-error" id="majorExpense-error"></p>
+            </div>
+            <div class="field">
+              <label for="majorExpenseAge">Age when it occurs</label>
+              <input id="majorExpenseAge" name="majorExpenseAge" type="number" min="18" max="100" step="1" inputmode="numeric" value="45">
+              <p class="field-help">Can be before or after retirement.</p><p class="field-error" id="majorExpenseAge-error"></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="button-row">
+          <button id="load-example" class="button button--secondary" type="button">Load example</button>
+          <button id="reset-planner" class="button button--quiet" type="button">Reset planner</button>
+        </div>
+      </section>
+    </form>
+
+    <section id="results" class="results-section" aria-labelledby="results-heading" aria-live="polite">
+      <div class="section-heading results-heading">
+        <div>
+          <p class="step-label">Step 3</p>
+          <h2 id="results-heading">Your estimated outlook</h2>
+          <p id="result-context">Moderate scenario · age 35 to 67</p>
+        </div>
+        <button id="print-results" class="button button--print" type="button"><span aria-hidden="true">▣</span> Print / save PDF</button>
+      </div>
+
+      <div id="invalid-results" class="empty-state" hidden>
+        <h3>Check the highlighted entries</h3>
+        <p>Results will return as soon as every value is valid.</p>
+      </div>
+
+      <div id="results-content">
+        <div class="status-card" id="status-card">
+          <div class="status-card__icon" aria-hidden="true">✓</div>
+          <div>
+            <p class="status-label">Simplified plan check</p>
+            <h3 id="track-status">Your plan appears on track</h3>
+            <p id="track-explanation"></p>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <p>Savings at retirement <button class="info-tip" type="button" aria-label="About savings at retirement" data-tooltip="Projected balance at the start of retirement, after any earlier major expense.">?</button></p>
+            <strong id="retirement-savings">$0</strong>
+            <span id="retirement-savings-note"></span>
+          </article>
+          <article class="metric-card">
+            <p>Savings after major expense <button class="info-tip" type="button" aria-label="About savings after expense" data-tooltip="The projected balance immediately after the optional expense is deducted.">?</button></p>
+            <strong id="after-expense">$0</strong>
+            <span id="after-expense-note"></span>
+          </article>
+          <article class="metric-card">
+            <p>First-year retirement spending <button class="info-tip" type="button" aria-label="About future spending" data-tooltip="Your retirement spending estimate increased by inflation until retirement.">?</button></p>
+            <strong id="first-year-spending">$0</strong>
+            <span>Future dollars</span>
+          </article>
+          <article class="metric-card metric-card--accent">
+            <p id="gap-label">Estimated surplus</p>
+            <strong id="gap-surplus">$0</strong>
+            <span>Compared with the simplified 4% target</span>
+          </article>
+        </div>
+
+        <article class="chart-card">
+          <div class="chart-heading">
+            <div><h3>Year-by-year projection</h3><p>Projected savings balance through at least 30 years of retirement.</p></div>
+            <div class="legend" aria-hidden="true"><span></span> Projected balance</div>
+          </div>
+          <div id="projection-chart" class="chart" role="img" aria-label="Year-by-year projected savings chart"></div>
+          <details class="data-details">
+            <summary>View projection as a data table</summary>
+            <div class="table-scroll"><table><caption class="sr-only">Year-by-year savings projection</caption><thead><tr><th>Year</th><th>Age</th><th>Phase</th><th>End balance</th></tr></thead><tbody id="projection-table-body"></tbody></table></div>
+          </details>
+        </article>
+
+        <article class="comparison-card">
+          <div class="chart-heading"><div><h3>Compare all three scenarios</h3><p>Uses the same personal inputs with each scenario’s current assumptions.</p></div></div>
+          <div class="table-scroll">
+            <table class="comparison-table">
+              <thead><tr><th>Scenario</th><th>Return / growth / inflation</th><th>At retirement</th><th>Gap or surplus</th><th>Plan check</th></tr></thead>
+              <tbody id="comparison-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <details class="method-card">
+          <summary>How these estimates are calculated</summary>
+          <div>
+            <p>Each year before retirement, the planner applies the selected investment return and adds 12 monthly contributions. Contributions rise with the income-growth assumption. The optional expense rises with inflation and is deducted at the chosen age.</p>
+            <p>At retirement, the plan target equals first-year retirement spending divided by 4% (25 times spending). After retirement, the chart applies investment growth, then subtracts spending that rises with inflation. Values are estimates in future dollars.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <aside class="disclaimer" aria-labelledby="disclaimer-heading">
+      <div aria-hidden="true">!</div>
+      <p><strong id="disclaimer-heading">Educational demonstration only.</strong> This simplified planner is not financial, tax, investment, accounting, or legal advice. Results are hypothetical, omit many real-world factors, and do not guarantee future outcomes. Consider consulting a qualified professional for advice about your situation.</p>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="page-shell"><p>Personal Financial Planning Scenario Planner</p><p>No data collected · No accounts · No tracking</p></div>
+  </footer>
+</body>
+</html>
